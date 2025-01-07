@@ -1,0 +1,24 @@
+{
+  "name": "alisons/caller",
+  "description": "A caller package to enhance a project with caller functionality",
+  "autoload": {
+    "psr-4": {
+      "Alisons\\Caller\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "sulemanAlisons",
+      "email": "suleman@alisonstech.com"
+    }
+  ],
+  "require": {},
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Alisons\\Caller\\CallerServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev"
+}
