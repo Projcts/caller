@@ -8,70 +8,6 @@ window.CloseWindow = function () {
 };
 
 // Constants
-const DIALOG_CONFIG = {
-  width: 400,
-  height: 700,
-  title: "Browser Phone",
-  modal: true,
-  resizable: true,
-};
-
-// CSS Styles
-const STYLES = `
-.phone-dialog {
-    position: fixed;
-    background: white;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    border-radius: 4px;
-    overflow: hidden;
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-}
-
-.dialog-title-bar {
-    padding: 10px;
-    background: #f0f0f0;
-    cursor: move;
-    user-select: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.dialog-title-bar button {
-    border: none;
-    background: none;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 0 5px;
-}
-
-.dialog-content {
-    flex: 1;
-    overflow: hidden;
-}
-
-.resize-handle {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 15px;
-    height: 15px;
-    cursor: se-resize;
-    background: linear-gradient(135deg, transparent 50%, #ccc 50%);
-}
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
-}
-`;
 
 class PhoneDialogManager {
   constructor() {
@@ -82,186 +18,38 @@ class PhoneDialogManager {
     this.modalOverlay = null;
 
     // Add styles to document
-    this.addStyles();
-
-    // Bind methods
-    this.handleDragStart = this.handleDragStart.bind(this);
-    this.handleDrag = this.handleDrag.bind(this);
-    this.handleDragEnd = this.handleDragEnd.bind(this);
-    this.handleResize = this.handleResize.bind(this);
-    this.closeDialog = this.closeDialog.bind(this);
-
-    // Make closeDialog method available globally
-    window.CloseWindow = this.closeDialog.bind(this);
   }
 
-  addStyles() {
-    if (!document.getElementById("phone-dialog-styles")) {
-      const styleSheet = document.createElement("style");
-      styleSheet.id = "phone-dialog-styles";
-      styleSheet.textContent = STYLES;
-      document.head.appendChild(styleSheet);
+  createPopupWindow(numberToDial) {
+    const url = numberToDial ? `dialer?d=${numberToDial}` : "index.html";
+
+    const width = 400;
+    const height = 600;
+
+    // Calculate the center of the screen
+    const left = (window.screen.width - width) / 2;
+    const top = (window.screen.height - height) / 2;
+
+    const windowFeatures = `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`;
+
+    this.dialog = window.open(url, "DialerPopup", windowFeatures);
+
+    if (this.dialog) {
+      this.dialog.focus();
+    } else {
+      alert("Popup blocked. Please allow popups for this site.");
     }
-  }
-
-  createDialog() {
-    this.dialog = document.createElement("div");
-    this.dialog.className = "phone-dialog";
-    this.dialog.style.width = `${DIALOG_CONFIG.width}px`;
-    this.dialog.style.height = `${DIALOG_CONFIG.height}px`;
-
-    // Create title bar
-    const titleBar = document.createElement("div");
-    titleBar.className = "dialog-title-bar";
-
-    const title = document.createElement("span");
-    title.textContent = DIALOG_CONFIG.title;
-
-    const closeButton = document.createElement("button");
-    closeButton.textContent = "×";
-    closeButton.onclick = () => this.closeDialog();
-
-    titleBar.appendChild(title);
-    titleBar.appendChild(closeButton);
-    this.dialog.appendChild(titleBar);
-
-    document.body.appendChild(this.dialog);
-  }
-
-  createIframe(numberToDial) {
-    const container = document.createElement("div");
-    container.className = "dialog-content";
-
-    this.iframe = document.createElement("iframe");
-    this.iframe.id = "ThePhone";
-    this.iframe.style.width = "100%";
-    this.iframe.style.height = "100%";
-    this.iframe.style.border = "none";
-    this.iframe.src = numberToDial ? `dialer?d=${numberToDial}` : "index.html";
-
-    container.appendChild(this.iframe);
-    this.dialog.appendChild(container);
   }
 
   openDialog(numberToDial) {
-    if (this.dialog) {
+    if (this.dialog && !this.dialog.closed) {
       console.warn("Phone window already open");
       return;
+    } else {
+      this.dialog = null;
     }
 
-    this.createDialog();
-    this.createIframe(numberToDial);
-    this.setupEventListeners();
-    this.centerDialog();
-
-    if (DIALOG_CONFIG.modal) {
-      this.createModalOverlay();
-    }
-  }
-
-  setupEventListeners() {
-    const titleBar = this.dialog.querySelector(".dialog-title-bar");
-    titleBar.addEventListener("mousedown", this.handleDragStart);
-    window.addEventListener("resize", this.handleResize);
-
-    if (DIALOG_CONFIG.resizable) {
-      this.setupResizeHandle();
-    }
-  }
-
-  handleDragStart(e) {
-    if (e.target.tagName.toLowerCase() === "button") return;
-
-    this.isDragging = true;
-    const rect = this.dialog.getBoundingClientRect();
-    this.dragOffset = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    };
-
-    document.addEventListener("mousemove", this.handleDrag);
-    document.addEventListener("mouseup", this.handleDragEnd);
-  }
-
-  handleDrag(e) {
-    if (!this.isDragging) return;
-
-    const newX = e.clientX - this.dragOffset.x;
-    const newY = e.clientY - this.dragOffset.y;
-
-    const maxX = window.innerWidth - this.dialog.offsetWidth;
-    const maxY = window.innerHeight - this.dialog.offsetHeight;
-
-    this.dialog.style.left = `${Math.min(Math.max(0, newX), maxX)}px`;
-    this.dialog.style.top = `${Math.min(Math.max(0, newY), maxY)}px`;
-  }
-
-  handleDragEnd() {
-    this.isDragging = false;
-    document.removeEventListener("mousemove", this.handleDrag);
-    document.removeEventListener("mouseup", this.handleDragEnd);
-  }
-
-  setupResizeHandle() {
-    const resizeHandle = document.createElement("div");
-    resizeHandle.className = "resize-handle";
-
-    let isResizing = false;
-    let originalWidth, originalHeight, originalX, originalY;
-
-    resizeHandle.addEventListener("mousedown", (e) => {
-      isResizing = true;
-      originalWidth = this.dialog.offsetWidth;
-      originalHeight = this.dialog.offsetHeight;
-      originalX = e.clientX;
-      originalY = e.clientY;
-
-      const handleResize = (e) => {
-        if (!isResizing) return;
-
-        const newWidth = originalWidth + (e.clientX - originalX);
-        const newHeight = originalHeight + (e.clientY - originalY);
-
-        this.dialog.style.width = `${Math.max(300, newWidth)}px`;
-        this.dialog.style.height = `${Math.max(200, newHeight)}px`;
-      };
-
-      const stopResize = () => {
-        isResizing = false;
-        document.removeEventListener("mousemove", handleResize);
-        document.removeEventListener("mouseup", stopResize);
-      };
-
-      document.addEventListener("mousemove", handleResize);
-      document.addEventListener("mouseup", stopResize);
-    });
-
-    this.dialog.appendChild(resizeHandle);
-  }
-
-  centerDialog() {
-    const x = (window.innerWidth - DIALOG_CONFIG.width) / 2;
-    const y = (window.innerHeight - DIALOG_CONFIG.height) / 2;
-
-    this.dialog.style.left = `${Math.max(0, x)}px`;
-    this.dialog.style.top = `${Math.max(0, y)}px`;
-  }
-
-  createModalOverlay() {
-    this.modalOverlay = document.createElement("div");
-    this.modalOverlay.className = "modal-overlay";
-    document.body.appendChild(this.modalOverlay);
-  }
-
-  handleResize() {
-    if (!this.dialog) return;
-
-    const rect = this.dialog.getBoundingClientRect();
-    const maxX = window.innerWidth - rect.width;
-    const maxY = window.innerHeight - rect.height;
-
-    if (rect.left > maxX) this.dialog.style.left = `${maxX}px`;
-    if (rect.top > maxY) this.dialog.style.top = `${maxY}px`;
+    this.createPopupWindow(numberToDial);
   }
 
   confirmAndCall(number) {
@@ -456,33 +244,41 @@ document.addEventListener("DOMContentLoaded", function () {
       },
     })
       .then((e) => e.json())
-      .then((e) => {
-        if (e.success) {
+      .then((response) => {
+        console.log("Response:", response);
+
+        if (response.success) {
           appendAlert("Successfully Created", "success");
-          setTimeout(function () {
+          setTimeout(() => {
             window.location.reload();
           }, 1000);
-        } else
-          e.errors
-            ? (document.querySelectorAll(".invalid-feedback").forEach((e) => {
-                e.remove();
-              }),
-              document.querySelectorAll(".is-invalid").forEach((e) => {
-                e.classList.remove("is-invalid");
-              }),
-              Object.keys(e.errors).forEach((t) => {
-                let r = document.querySelector(`[name="${t}"]`),
-                  n = document.createElement("span");
-                (n.textContent = e.errors[t][0]),
-                  n.classList.add("invalid-feedback"),
-                  r.classList.add("is-invalid"),
-                  r.insertAdjacentElement("afterend", n);
-              }))
-            : alert("Failed to update settings. Please try again.");
+        } else if (response.errors) {
+          // First clear previous errors
+          document
+            .querySelectorAll(".invalid-feedback")
+            .forEach((el) => el.remove());
+          document
+            .querySelectorAll(".is-invalid")
+            .forEach((el) => el.classList.remove("is-invalid"));
+
+          // Now show new errors
+          Object.keys(response.errors).forEach((fieldName) => {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (field) {
+              const errorFeedback = document.createElement("span");
+              errorFeedback.textContent = response.errors[fieldName][0];
+              errorFeedback.classList.add("invalid-feedback");
+              field.classList.add("is-invalid");
+              field.insertAdjacentElement("afterend", errorFeedback);
+            }
+          });
+        } else {
+          appendAlert("Failed to update settings. Please try again.", "danger");
+        }
       })
-      .catch((e) => {
-        console.error("Error:", e),
-          alert("An error occurred. Please try again.");
+      .catch((error) => {
+        console.error("Catch Error:", error);
+        appendAlert("An error occurred. Please try again.", "danger");
       });
   });
 });
