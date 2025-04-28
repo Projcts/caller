@@ -20,5 +20,6 @@
       ]
     }
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "dev",
+  "version": "2.0.1"
 }
