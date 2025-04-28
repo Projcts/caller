@@ -2,6 +2,7 @@
 
 namespace Alisons\Caller\Http\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class CallLog extends Model
@@ -41,5 +42,10 @@ class CallLog extends Model
         }
 
         return $query;
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'id', 'user_id');
     }
 }

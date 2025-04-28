@@ -30,10 +30,10 @@ class CallerController extends Controller
 
     public function callSummary()
     {
-        $calls = DB::table('call_logs')  // Change 'your_calls_table' to your actual table name
+        $calls = DB::table('call_logs')
             ->selectRaw('DATE(created_at) as date, 
-                        SUM(CASE WHEN call_terminated_by = "them" THEN 1 ELSE 0 END) as picked_calls,
-                        SUM(CASE WHEN call_terminated_by = "us" THEN 1 ELSE 0 END) as missed_calls')
+                SUM(CASE WHEN call_started = 1 THEN 1 ELSE 0 END) as picked_calls,
+                SUM(CASE WHEN call_started = 0 THEN 1 ELSE 0 END) as missed_calls')
             ->where('created_at', '>=', Carbon::now()->subDays(7))
             ->groupBy(DB::raw('DATE(created_at)'))
             ->orderBy('date', 'ASC')
@@ -46,7 +46,7 @@ class CallerController extends Controller
     {
 
         // Get the filtered logs based on the search parameters
-        $callLogs = CallLog::search($request->all())->get();
+        $callLogs = CallLog::with('user')->search($request->all())->get();
         $filename = 'call_logs_' . now()->format('Y_m') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
@@ -55,7 +55,7 @@ class CallerController extends Controller
         $columns = [
             'id',
             'call_started',
-            'user_id',
+            'user',
             'lead',
             'call_type',
             'call_time',
@@ -73,7 +73,7 @@ class CallerController extends Controller
                 fputcsv($file, [
                     $log->id,
                     $log->call_started,
-                    $log->user_id,
+                    $log->user->email,
                     $log->lead,
                     $log->call_type,
                     $log->call_time,
@@ -107,7 +107,7 @@ class CallerController extends Controller
 
     public function getLogs(Request $request)
     {
-        $logs = CallLog::search($request->all())
+        $logs = CallLog::with('user')->search($request->all())
             ->orderBy('created_at', 'desc')
             ->paginate(10)      // Paginate 10 records per page
             ->withQueryString(); // Keep search values in URL when paginating
@@ -124,7 +124,7 @@ class CallerController extends Controller
         $currentMonth = Carbon::now()->month;
         $currentYear = Carbon::now()->year;
 
-        $callLogs = CallLog::whereMonth('call_time', $currentMonth)
+        $callLogs = CallLog::with('user')->whereMonth('call_time', $currentMonth)
             ->whereYear('call_time', $currentYear)
             ->get();
 
@@ -136,7 +136,7 @@ class CallerController extends Controller
         $columns = [
             'id',
             'call_started',
-            'user_id',
+            'user',
             'lead',
             'call_type',
             'call_time',
@@ -154,7 +154,7 @@ class CallerController extends Controller
                 fputcsv($file, [
                     $log->id,
                     $log->call_started,
-                    $log->user_id,
+                    $log->user->email,
                     $log->lead,
                     $log->call_type,
                     $log->call_time,

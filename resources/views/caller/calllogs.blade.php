@@ -25,7 +25,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Call Started</th>
-                                <th>User ID</th>
+                                <th>User</th>
                                 <th>Lead</th>
                                 <th>Call Type</th>
                                 <th>Call Time</th>
@@ -41,7 +41,7 @@
                                 <tr>
                                     <td>{{ ($logs->currentPage() - 1) * $logs->perPage() + $index + 1 }}</td>
                                     <td>{{ $log->call_started ? 'Yes' : 'No' }}</td>
-                                    <td>{{ $log->user_id }}</td>
+                                    <td>{{ $log->user->email }}</td>
                                     <td>{{ $log->lead }}</td>
                                     <td>{{ $log->call_type }}</td>
                                     <td>{{ $log->call_time }}</td>
