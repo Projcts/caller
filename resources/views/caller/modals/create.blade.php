@@ -10,7 +10,7 @@
                         aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="liveAlertPlaceholder"></div>
+
                     <form id="websocketForm" method="POST" action="{{ route('caller.caller.store') }}">
                         @csrf
                         <div class="row g-3">

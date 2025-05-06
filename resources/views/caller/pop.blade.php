@@ -61,7 +61,7 @@
             <h3 class="section-title">Personal Information</h3>
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>Phone:</strong> <a class="caller" data-number="03072781033">0333-1203725</a>
+                    <p><strong>Phone:</strong> <a class="caller" data-number="03331203725">0333-1203725</a>
                     </p>
                     <p><strong>Email:</strong> <a href="mailto:suleman@example.com"
                             class="text-decoration-none">suleman@example.com</a></p>

@@ -14,6 +14,9 @@
             console.warn("Cannot make use of ServiceWorker");
         }
         const settingsUrl = "{{ route('caller.caller.settings') }}";
+
+        const generateLog = "{{ route('caller.caller.generatelog') }}";
+
         const csrfToken = "{{ csrf_token() }}";
         var phoneOptions = {};
         var settings = fetchSettings(settingsUrl, csrfToken, {
@@ -45,7 +48,8 @@
                 NoiseSuppression: 1,
                 hostingPrefix: "assets/",
                 EchoCancellation: 1,
-                ChatEngine: "SIMPLE"
+                ChatEngine: "SIMPLE",
+                UiCustomDialButton: 1,
             };
             const script = document.createElement('script');
             script.type = 'text/javascript';
@@ -64,7 +68,7 @@
         }).catch(error => {
             alert('Settings for User Does not Exists!')
             console.error('Failed to fetch settings:', error);
-            window.parent.CloseWindow();
+            window.CloseWindow();
 
             return false;
         });;
@@ -78,15 +82,38 @@
             }
         };
         var web_hook_on_registrationFailed = function(e) {
-            window.parent.CloseWindow();
+            window.close();
         };
         var web_hook_on_unregistered = function() {
-            window.parent.CloseWindow();
+            window.close();
         };
         var web_hook_on_terminate = function(session) {
-            window.setTimeout(function() {
-                window.parent.CloseWindow();
-            }, 1000);
+            fetch(generateLog, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        call_time: session?.data?.callstart ?? null,
+                        duration: session?.data?.callTimer ?? null,
+                        lead: session?.data?.dst ?? null,
+                        call_type: session?.data?.calldirection ?? null,
+                        call_started: session?.data?.started ?? false,
+                        call_terminated_by: session?.data?.terminateby ?? "-",
+                        start_time: session?.data?.startTime ?? null,
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    window.close();
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    window.close();
+                });
+
         };
     </script>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />

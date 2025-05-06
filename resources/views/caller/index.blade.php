@@ -1,27 +1,24 @@
 @extends('caller::layout.main')
 @section('caller')
-    <!-- Bootstrap  CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
-    </script>
-    <div class="container py-4">
-        <div class="card bg-white shadow">
-            <div class="card-header bg-danger text-white">
-                <h3 class="card-title mb-0">Caller Configuration</h3>
-                <button type="button" class="btn btn-light create-button" data-bs-toggle="modal"
-                    data-bs-target="#callerConfigModal">
-                    Create
-                </button>
+    <div id="content">
+        <div class="row">
+            <div class="card bg-white shadow">
+                <div class="card-header bg-danger text-white"
+                    style="
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+">
+                    <h3 class="card-title mb-0">Caller Configuration</h3>
+                    <button type="button" class="btn btn-light create-button" data-bs-toggle="modal"
+                        data-bs-target="#callerConfigModal">
+                        Create
+                    </button>
 
 
-            </div>
+                </div>
 
 
-            <div class="card-body">
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
@@ -69,19 +66,13 @@
                         @endforelse
                     </tbody>
                 </table>
+
             </div>
         </div>
+
+
+
+
+
     </div>
-
-
-    @include('caller::caller.modals.create')
-
-
-    </div>
-    <script>
-        var callerUrl = "{{ route('caller.caller.store') }}";
-    </script>
-    <script src="{{ asset('caller/js/caller.js') }}"></script>
-    <script src="{{ asset('caller/js/alert-dismiss.js') }}"></script>
-    <link href="{{ asset('caller/css/custom.css') }}" rel="stylesheet" />
 @endsection
