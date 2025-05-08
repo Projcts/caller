@@ -60,6 +60,17 @@ By default, the application uses Laravel Breeze's `layouts->app` as its layout. 
 
 ---
 
+
+### 5. Add Content Yeild
+
+By default, the application uses Laravel Breeze's `layouts->app` as its layout. If you're using a different layout, you need to update the references:
+
+@yield('caller-wrapper')
+---
+
+
+
+
 ## Accessing the Caller Settings
 
 Once the package is installed, you can access the Caller settings at the following URL:
