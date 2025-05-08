@@ -30,10 +30,17 @@ class CallerController extends Controller
 
     public function callSummary()
     {
+
         $calls = DB::table('call_logs')  // Change 'your_calls_table' to your actual table name
             ->selectRaw('DATE(created_at) as date, 
                         SUM(CASE WHEN call_terminated_by = "them" THEN 1 ELSE 0 END) as picked_calls,
-                        SUM(CASE WHEN call_terminated_by = "us" THEN 1 ELSE 0 END) as missed_calls')
+                        SUM(CASE WHEN call_terminated_by = "us" THEN 1 ELSE 0 END) as missed_calls');
+
+        $calls = DB::table('call_logs')
+            ->selectRaw('DATE(created_at) as date, 
+                SUM(CASE WHEN call_started = 1 THEN 1 ELSE 0 END) as picked_calls,
+                SUM(CASE WHEN call_started = 0 THEN 1 ELSE 0 END) as missed_calls')
+
             ->where('created_at', '>=', Carbon::now()->subDays(7))
             ->groupBy(DB::raw('DATE(created_at)'))
             ->orderBy('date', 'ASC')
@@ -182,6 +189,7 @@ class CallerController extends Controller
             'start_time'         => ['nullable', 'date'],
             'duration'           => ['nullable', 'integer', 'min:0'],
             'call_terminated_by' => ['nullable', 'string', 'max:250'],
+            'recording_url' => ['nullable', 'string', 'max:250'],
         ]);
 
         if ($validator->fails()) {
@@ -207,6 +215,7 @@ class CallerController extends Controller
                 'start_time'         => $startTime,
                 'duration'           => $request->duration,
                 'call_terminated_by' => $request->call_terminated_by,
+                'call_recording_url' => $request->recording_url
             ]);
 
             DB::commit();

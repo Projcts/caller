@@ -68,7 +68,7 @@
         }).catch(error => {
             alert('Settings for User Does not Exists!')
             console.error('Failed to fetch settings:', error);
-            window.CloseWindow();
+            window.close();
 
             return false;
         });;
@@ -82,12 +82,19 @@
             }
         };
         var web_hook_on_registrationFailed = function(e) {
+
             window.close();
         };
+
+        var web_hook_on_transportError = function(e) {
+            alert("Visit website: https://116.0.58.206:8089/static/index.html, to establish connection");
+            window.close();
+        }
         var web_hook_on_unregistered = function() {
             window.close();
         };
         var web_hook_on_terminate = function(session) {
+
             fetch(generateLog, {
                     method: 'POST',
                     headers: {
@@ -102,16 +109,17 @@
                         call_started: session?.data?.started ?? false,
                         call_terminated_by: session?.data?.terminateby ?? "-",
                         start_time: session?.data?.startTime ?? null,
+                        recording_url: (session?._id ?? '').replace(session?.fromTag ?? '', '') + '.wav'
                     })
                 })
                 .then(response => response.json())
                 .then(data => {
                     console.log('Success:', data);
-                    window.close();
+                    // window.close();
                 })
                 .catch((error) => {
                     console.error('Error:', error);
-                    window.close();
+                    // window.close();
                 });
 
         };

@@ -31,6 +31,7 @@
                                 <th>Call Time</th>
                                 <th>Start Time</th>
                                 <th>Duration (seconds)</th>
+                                <th>Call Recording </th>
                                 <th>Created At</th>
                                 <th>Updated At</th>
                             </tr>
@@ -47,6 +48,18 @@
                                     <td>{{ $log->call_time }}</td>
                                     <td>{{ $log->start_time }}</td>
                                     <td>{{ $log->duration }}</td>
+                                    <td>
+                                        @if ($log->call_recording_url)
+                                            <audio controls>
+                                                <source
+                                                    src="http://campaign.alkhidmat.com/recordings/{{ $log->call_recording_url }}"
+                                                    type="audio/wav">
+                                                Your browser does not support the audio element.
+                                            </audio>
+                                        @else
+                                            No recording available
+                                        @endif
+                                    </td>
                                     <td>{{ $log->created_at }}</td>
                                     <td>{{ $log->updated_at }}</td>
                                 </tr>

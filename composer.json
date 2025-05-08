@@ -20,5 +20,10 @@
       ]
     }
   },
+<<<<<<< HEAD
   "minimum-stability": "dev"
+=======
+  "minimum-stability": "dev",
+  "version": "2.0.1"
+>>>>>>> 985bec3deab3a5f472e746de178bd50407c61fb6
 }

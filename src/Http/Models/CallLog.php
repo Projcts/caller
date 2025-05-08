@@ -15,7 +15,8 @@ class CallLog extends Model
         'call_time',
         'start_time',
         'duration',
-        'call_terminated_by'
+        'call_terminated_by',
+        'call_recording_url'
     ];
 
 
