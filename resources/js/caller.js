@@ -21,8 +21,17 @@ class PhoneDialogManager {
   }
 
   createPopupWindow(numberToDial) {
-    const url = numberToDial ? `dialer?d=${numberToDial}` : "index.html";
+    const origin = window.location.origin;
 
+    // Define the desired path for the popup
+    const popupPath = "/caller/dialer";
+
+    // Construct the full URL with the number to dial as a query parameter
+    const url = numberToDial
+      ? `${origin}${popupPath}?d=${numberToDial}`
+      : `${origin}${popupPath}`;
+
+    
     const width = 400;
     const height = 600;
 
